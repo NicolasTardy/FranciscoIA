@@ -1,25 +1,53 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, Paper, TextField } from "@mui/material";
-import Grid from "@mui/material/Grid"; // Composant Grid de MUI
-import { useRouter } from "next/router";
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Container,
+  Grid
+} from "@mui/material";
 import { keyframes } from "@emotion/react";
+import { useRouter } from "next/router";
 
-// Animation pour représenter Francisco par un spectre animé
-const pulse = keyframes`
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
+// *** 1) Animation des barres verticales (type ChatGPT) ***
+const barWave = keyframes`
+  0% { transform: scaleY(1); }
+  33% { transform: scaleY(2); }
+  66% { transform: scaleY(0.5); }
+  100% { transform: scaleY(1); }
 `;
 
-// Composant Spectre modifié pour jouer le son lors du clic
-const Spectre = () => {
+const barCommonStyle = {
+  width: "4px",
+  backgroundColor: "#fff", // Les barres sont blanches
+  margin: "0 2px",
+  borderRadius: "2px",
+  animation: `${barWave} 1s infinite ease-in-out`, // plus rapide pour être visible
+  transformOrigin: "bottom",
+};
+
+// *** 2) Animation du dégradé (swirl) ***
+const swirl = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+// *** 3) Animation de pulsation (coeur qui bat) ***
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+`;
+
+// Composant : Cercle avec dégradé, pulsation, + barres internes
+const SpectrePulse = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleClick = () => {
-    // Lancer la lecture du son quand l'utilisateur clique sur le spectre
     if (audioRef.current) {
-      audioRef.current.play().catch((error) => {
-        console.error("La lecture du son a échoué :", error);
+      audioRef.current.play().catch((err) => {
+        console.error("Échec de lecture audio :", err);
       });
     }
   };
@@ -28,32 +56,45 @@ const Spectre = () => {
     <Box
       onClick={handleClick}
       sx={{
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
         borderRadius: "50%",
-        background: "linear-gradient(45deg, #2196f3, #21cbf3)",
-        animation: `${pulse} 2s infinite`,
-        margin: "20px auto",
-        cursor: "pointer"
+        // Dégradé multiple
+        background: "linear-gradient(-45deg, #2196f3, #21cbf3, #00e676, #2196f3)",
+        backgroundSize: "400% 400%",
+        // On combine swirl + pulse
+        animation: `${swirl} 6s linear infinite, ${pulse} 2s ease-in-out infinite`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
       }}
     >
-      <audio ref={audioRef} src="/francisco.wav" preload="auto" />
+      {/* Barres verticales qui bougent */}
+      <Box sx={{ display: "flex", alignItems: "flex-end", height: "50px" }}>
+        <Box sx={{ ...barCommonStyle, animationDelay: "0s" }} />
+        <Box sx={{ ...barCommonStyle, animationDelay: ".2s" }} />
+        <Box sx={{ ...barCommonStyle, animationDelay: ".4s" }} />
+        <Box sx={{ ...barCommonStyle, animationDelay: ".6s" }} />
+      </Box>
+
+      <audio ref={audioRef} src="/go.wav" preload="auto" />
     </Box>
   );
 };
 
+// Thèmes
 interface Theme {
   id: string;
   title: string;
   description: string;
 }
 
-// Définition des 8 thèmes
 const themes: Theme[] = [
   {
     id: "aide-devoirs",
     title: "Aide aux devoirs",
-    description: "Je transforme vos devoirs en une aventure d&apos;apprentissage !"
+    description: "Je transforme vos devoirs en une aventure d'apprentissage !"
   },
   {
     id: "recettes-cuisine",
@@ -63,7 +104,7 @@ const themes: Theme[] = [
   {
     id: "loisirs-weekend",
     title: "Loisirs week-end",
-    description: "Je vous propose des idées pour des week-ends en famille inoubliables."
+    description: "Je vous propose des idées pour des week-ends inoubliables."
   },
   {
     id: "vacances",
@@ -88,7 +129,7 @@ const themes: Theme[] = [
   {
     id: "bien-etre",
     title: "Conseils bien-être",
-    description: "Je vous offre des conseils pour améliorer votre quotidien et cultiver le bien-être."
+    description: "Je vous offre des conseils pour améliorer votre quotidien."
   }
 ];
 
@@ -105,61 +146,97 @@ const IndexPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Titre & sous-titre */}
       <Typography variant="h3" align="center" gutterBottom>
         Bienvenue sur Francisco‑IA !
       </Typography>
       <Typography variant="h6" align="center" gutterBottom>
-        Je suis Francisco, votre assistant inclus dans votre offre DartyMax Intégral. Posez-moi vos questions et je ferai de mon mieux pour vous aider !
+        Je suis Francisco, votre assistant inclus dans votre offre DartyMax Intégral.
+        Posez-moi vos questions et je ferai de mon mieux pour vous aider !
       </Typography>
-      
-      {/* Spectre animé incarnant Francisco avec son son */}
-      <Spectre />
-      
-      {/* Champ pour renseigner le pseudo avec texte noir sur fond blanc */}
-      <Box sx={{ textAlign: "center", marginBottom: 2 }}>
+
+      {/* Cercle pulsant + Vidéo côte à côte */}
+      <Grid
+        container
+        spacing={4}
+        alignItems="center"
+        justifyContent="center"
+        sx={{ mt: 3, mb: 5 }}
+      >
+        <Grid item>
+          <SpectrePulse />
+        </Grid>
+
+        <Grid item>
+          <Box
+            sx={{
+              width: "150px",
+              borderRadius: 2,
+              overflow: "hidden"
+            }}
+          >
+            <video
+              src="/franciscohero.mp4"
+              autoPlay
+              muted
+              loop
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block"
+              }}
+            />
+          </Box>
+        </Grid>
+      </Grid>
+
+      {/* Champ pseudo */}
+      <Box sx={{ textAlign: "center", mb: 4 }}>
         <TextField
           placeholder="Votre pseudo"
           aria-label="Votre pseudo"
           variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          sx={{ maxWidth: 300, margin: "0 auto", display: "block" }}
-          InputProps={{
-            sx: { color: "black", backgroundColor: "white" }
+          sx={{
+            maxWidth: 300,
+            width: "100%",
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "white",
+              color: "black"
+            }
           }}
         />
       </Box>
 
-      {/* Affichage des 8 blocs thématiques */}
-      <Box sx={{ marginTop: 4 }}>
-        <Typography variant="h5" align="center" gutterBottom>
-          Choisissez un thème pour commencer :
-        </Typography>
-        <Grid container spacing={2}>
-          {themes.map((theme) => (
-            <Grid item xs={12} sm={6} md={3} key={theme.id}>
-              <Paper
-                sx={{
-                  padding: 2,
-                  height: 150,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  textAlign: "center",
-                  cursor: "pointer"
-                }}
-                elevation={3}
-                onClick={() => handleThemeClick(theme.id)}
-              >
-                <Typography variant="h6">{theme.title}</Typography>
-                <Typography variant="body2">{theme.description}</Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </Box>
+      {/* Thèmes en grille */}
+      <Typography variant="h5" align="center" gutterBottom>
+        Choisissez un thème pour commencer :
+      </Typography>
+      <Grid container spacing={2}>
+        {themes.map((theme) => (
+          <Grid item xs={12} sm={6} md={3} key={theme.id}>
+            <Paper
+              sx={{
+                padding: 2,
+                height: 150,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                cursor: "pointer"
+              }}
+              elevation={3}
+              onClick={() => handleThemeClick(theme.id)}
+            >
+              <Typography variant="h6">{theme.title}</Typography>
+              <Typography variant="body2">{theme.description}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 };
 

@@ -1,5 +1,13 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Button, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  Container,
+  Grid
+} from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -7,7 +15,7 @@ const RecettesCuisine = () => {
   const router = useRouter();
   const username = typeof router.query.user === "string" ? router.query.user : "invité";
 
-  // États pour stocker les valeurs saisies (15 pour frigo, 15 pour placard, 3 pour appareils)
+  // État pour stocker les saisies
   const [frigoItems, setFrigoItems] = useState<string[]>(Array(15).fill(""));
   const [placardItems, setPlacardItems] = useState<string[]>(Array(15).fill(""));
   const [appareilItems, setAppareilItems] = useState<string[]>(Array(3).fill(""));
@@ -15,33 +23,32 @@ const RecettesCuisine = () => {
   const [recipe, setRecipe] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Référence pour la lecture du son "go.wav"
+  // Référence pour le son
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Mise à jour des champs du frigo
+  // Gestion frigo
   const handleFrigoChange = (index: number, value: string) => {
     const newItems = [...frigoItems];
     newItems[index] = value;
     setFrigoItems(newItems);
   };
 
-  // Mise à jour des champs du placard
+  // Gestion placard
   const handlePlacardChange = (index: number, value: string) => {
     const newItems = [...placardItems];
     newItems[index] = value;
     setPlacardItems(newItems);
   };
 
-  // Mise à jour des champs pour les appareils de cuisson
+  // Gestion appareils
   const handleAppareilChange = (index: number, value: string) => {
     const newItems = [...appareilItems];
     newItems[index] = value;
     setAppareilItems(newItems);
   };
 
-  // Fonction pour envoyer les données à l'API et obtenir une recette
+  // Génération de la recette
   const proposeRecipe = async () => {
-    // Lancer le son "go.wav" dès le lancement de la requête
     if (audioRef.current) {
       audioRef.current.play().catch((error) =>
         console.error("Erreur de lecture du son:", error)
@@ -49,18 +56,18 @@ const RecettesCuisine = () => {
     }
     setLoading(true);
 
-    // Filtrer les champs non renseignés
     const frigoFiltered = frigoItems.filter((item) => item.trim() !== "");
     const placardFiltered = placardItems.filter((item) => item.trim() !== "");
     const appareilFiltered = appareilItems.filter((item) => item.trim() !== "");
 
-    // Construire le prompt en intégrant les données saisies
     const prompt = `Génère une recette simple et rapide à préparer en fonction des ingrédients disponibles.
 
 Contraintes:
 - Utilise uniquement les ingrédients fournis.
 - Prends en compte les appareils de cuisson disponibles.
-- La recette doit être prévue pour ${nombrePersonnes.trim() || "un nombre indéfini"} personnes.
+- La recette doit être prévue pour ${
+      nombrePersonnes.trim() || "un nombre indéfini"
+    } personnes.
 - Donne des instructions claires et faciles à suivre.
 - Propose une suggestion de présentation ou d'accompagnement si possible.
 
@@ -75,7 +82,7 @@ Réponds sous la forme suivante:
 3. <b>Instructions pas à pas
 4. <b>Suggestion de présentation ou d’accompagnement
 
-N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la balise <b> pour mettre en valeur les passages importants (aucune balise de fermeture). Ajoute de nombreux emojis (ex. 🍴, 🔥, 😊, 😋, 👍).`;
+N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la balise <b> (sans fermeture). Ajoute des emojis (🍴, 🔥, 😊, 😋, 👍).`;
 
     try {
       const response = await fetch("/api/recettes", {
@@ -97,106 +104,137 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
     }
   };
 
+  // Styles pour les TextField : fond blanc, texte noir, label noir
+  const textFieldStyles = {
+    "& .MuiInputLabel-root": {
+      color: "#000", // label bien noir
+    },
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#fff", // champ bien blanc
+      "& fieldset": {
+        borderColor: "#aaa", // gris clair
+      },
+      "&:hover fieldset": {
+        borderColor: "#000", // survol noir
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#2196f3", // focus bleu
+      },
+      "& input": {
+        color: "#000", // texte saisi en noir
+      }
+    },
+  };
+
   return (
-    <Box sx={{ padding: 4 }}>
-      {/* Element audio pour le son "go.wav" */}
+    <Container
+      maxWidth="md"
+      sx={{
+        py: 4,
+        backgroundColor: "#f4f4f4", // Un gris un peu plus foncé que #fafafa
+        borderRadius: 2,
+        color: "#000", // texte global en noir
+      }}
+    >
+      {/* Audio pour le son */}
       <audio ref={audioRef} src="/go.wav" preload="auto" />
 
       <Typography variant="h4" align="center" gutterBottom>
         Recettes de cuisine
       </Typography>
       <Typography variant="body1" align="center" gutterBottom>
-        Bonjour {username}, je suis Francisco. Pour que je te propose une recette, indique-moi ce que tu as en stock. (Tu n&apos;es pas obligé de remplir toutes les lignes !)
+        Bonjour {username}, je suis Francisco. Indiquez-moi ce que vous avez en stock dans votre frigo et vos placards...Pas la peine de tout mettre si vous voulez gagner du temps  :
       </Typography>
 
-      {/* Section "Frigo" */}
-      <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
+      <Box sx={{ maxWidth: 600, mx: "auto", mt: 3 }}>
+        {/* Ingrédients du frigo */}
         <Typography variant="h6" gutterBottom>
-          Dis-moi ce que tu as dans ton frigo :
+          Ingrédients du frigo :
         </Typography>
-        {frigoItems.map((item, index) => (
-          <TextField
-            key={`frigo-${index}`}
-            label={`Aliment ${index + 1}`}
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            value={item}
-            onChange={(e) => handleFrigoChange(index, e.target.value)}
-            InputProps={{ style: { color: "#000000", backgroundColor: "#FFFFFF" } }}
-          />
-        ))}
-      </Box>
+        <Grid container spacing={2}>
+          {frigoItems.map((item, index) => (
+            <Grid item xs={12} sm={6} key={`frigo-${index}`}>
+              <TextField
+                label={`Aliment ${index + 1}`}
+                variant="outlined"
+                fullWidth
+                value={item}
+                onChange={(e) => handleFrigoChange(index, e.target.value)}
+                sx={textFieldStyles}
+              />
+            </Grid>
+          ))}
+        </Grid>
 
-      {/* Section "Placard" */}
-      <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
-        <Typography variant="h6" gutterBottom>
-          Dis-moi ce que tu as dans ton placard :
+        {/* Ingrédients du placard */}
+        <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+          Ingrédients du placard :
         </Typography>
-        {placardItems.map((item, index) => (
-          <TextField
-            key={`placard-${index}`}
-            label={`Aliment ${index + 1}`}
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            value={item}
-            onChange={(e) => handlePlacardChange(index, e.target.value)}
-            InputProps={{ style: { color: "#000000", backgroundColor: "#FFFFFF" } }}
-          />
-        ))}
-      </Box>
+        <Grid container spacing={2}>
+          {placardItems.map((item, index) => (
+            <Grid item xs={12} sm={6} key={`placard-${index}`}>
+              <TextField
+                label={`Aliment ${index + 1}`}
+                variant="outlined"
+                fullWidth
+                value={item}
+                onChange={(e) => handlePlacardChange(index, e.target.value)}
+                sx={textFieldStyles}
+              />
+            </Grid>
+          ))}
+        </Grid>
 
-      {/* Section "Appareils de cuisson" */}
-      <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
-        <Typography variant="h6" gutterBottom>
-          Dis-moi avec quoi tu peux faire cuire :
+        {/* Appareils de cuisson */}
+        <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+          Appareils de cuisson :
         </Typography>
-        {appareilItems.map((item, index) => (
-          <TextField
-            key={`appareil-${index}`}
-            label={`Appareil ${index + 1}`}
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            value={item}
-            onChange={(e) => handleAppareilChange(index, e.target.value)}
-            InputProps={{ style: { color: "#000000", backgroundColor: "#FFFFFF" } }}
-          />
-        ))}
-      </Box>
+        <Grid container spacing={2}>
+          {appareilItems.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={`appareil-${index}`}>
+              <TextField
+                label={`Appareil ${index + 1}`}
+                variant="outlined"
+                fullWidth
+                value={item}
+                onChange={(e) => handleAppareilChange(index, e.target.value)}
+                sx={textFieldStyles}
+              />
+            </Grid>
+          ))}
+        </Grid>
 
-      {/* Section "Nombre de personnes" */}
-      <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
+        {/* Nombre de personnes */}
+        <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+          Nombre de personnes :
+        </Typography>
         <TextField
           label="Combien êtes-vous pour déguster ?"
           variant="outlined"
           fullWidth
-          margin="dense"
           type="number"
           value={nombrePersonnes}
           onChange={(e) => setNombrePersonnes(e.target.value)}
-          InputProps={{ style: { color: "#000000", backgroundColor: "#FFFFFF" } }}
+          sx={textFieldStyles}
         />
+
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Button variant="contained" color="primary" onClick={proposeRecipe} disabled={loading}>
+            Propose-moi une recette
+          </Button>
+        </Box>
       </Box>
 
-      {/* Bouton pour envoyer la demande */}
-      <Box sx={{ textAlign: "center", marginY: 2 }}>
-        <Button variant="contained" color="primary" onClick={proposeRecipe} disabled={loading}>
-          Propose moi une recette avec ça
-        </Button>
-      </Box>
-
-      {/* Affichage du sablier pendant le chargement */}
+      {/* Sablier si on attend la réponse */}
       {loading && (
-        <Box sx={{ textAlign: "center", marginY: 2 }}>
+        <Box sx={{ textAlign: "center", my: 2 }}>
           <CircularProgress />
         </Box>
       )}
 
-      {/* Affichage de la recette générée */}
+      {/* Affichage de la recette */}
       {recipe && (
-        <Box sx={{ marginTop: 4, maxWidth: 600, mx: "auto" }}>
+        <Box sx={{ mt: 4, maxWidth: 600, mx: "auto" }}>
           <Typography variant="h5" gutterBottom>
             Recette proposée :
           </Typography>
@@ -204,9 +242,8 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
             variant="body1"
             sx={{
               whiteSpace: "pre-line",
-              color: "#000000",
               backgroundColor: "#f0f0f0",
-              padding: 2,
+              p: 2,
               borderRadius: 2,
             }}
           >
@@ -216,14 +253,14 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
       )}
 
       {/* Bouton de retour à l'accueil */}
-      <Box sx={{ marginTop: 4, textAlign: "center" }}>
+      <Box sx={{ mt: 4, textAlign: "center" }}>
         <Link href={`/?user=${encodeURIComponent(username)}`} passHref legacyBehavior>
           <Button component="a" variant="outlined" color="secondary">
             Retour à l&apos;accueil
           </Button>
         </Link>
       </Box>
-    </Box>
+    </Container>
   );
 };
 
