@@ -16,7 +16,9 @@ const Finances = () => {
         Bonjour {username}! Découvrez des conseils personnalisés pour optimiser votre budget et gérer vos finances au quotidien.
       </Typography>
       <Link href="/" passHref>
-        <Button variant="contained" color="primary">Retour à l'accueil</Button>
+        <Button variant="contained" color="primary">
+          Retour à l&apos;accueil
+        </Button>
       </Link>
     </Box>
   );

@@ -16,7 +16,9 @@ const BienEtre = () => {
         Bonjour {username}! Adoptez des rituels simples et efficaces pour améliorer votre quotidien et cultiver le bien-être.
       </Typography>
       <Link href="/" passHref>
-        <Button variant="contained" color="primary">Retour à l'accueil</Button>
+        <Button variant="contained" color="primary">
+          Retour à l&apos;accueil
+        </Button>
       </Link>
     </Box>
   );

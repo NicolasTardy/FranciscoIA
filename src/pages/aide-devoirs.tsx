@@ -15,20 +15,20 @@ const AideDevoirs = () => {
   const [userInput, setUserInput] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Référence pour l'élément audio
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const sendQuestion = async () => {
     if (!userInput.trim()) return;
-    
+
     // Lancer le son "go.wav" dès que la requête est lancée
     if (audioRef.current) {
       audioRef.current.play().catch((error) => {
         console.error("Erreur lors de la lecture du son :", error);
       });
     }
-    
+
     // Ajout du message utilisateur dans l'historique
     const newMessage: ChatMessage = { role: "user", content: userInput };
     const updatedHistory = [...chatHistory, newMessage];
@@ -46,7 +46,7 @@ const AideDevoirs = () => {
             {
               role: "system",
               content:
-                `Tu es Francisco, un professeur innovant et patient. Explique de façon claire et structurée en utilisant des exemples concrets issus de la vie quotidienne. Ne présente pas la réponse avec des caractères Markdown (n'envoie pas de "###" ou "**"). Si possible, propose un lien vers une ressource vidéo explicative.`,
+                `Tu es Francisco, un professeur innovant et patient. Explique de façon claire et structurée en utilisant des exemples concrets issus de la vie quotidienne. Ne présente pas la réponse avec des caractères Markdown (n&apos;envoie pas de "###" ou "**"). Si possible, propose un lien vers une ressource vidéo explicative.`,
             },
           ],
         }),
@@ -74,7 +74,7 @@ const AideDevoirs = () => {
         Aide aux devoirs
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Bonjour {username}, je suis Francisco. Pose-moi une question sur tes devoirs et je ferai de mon mieux pour t'aider !
+        Bonjour {username}, je suis Francisco. Pose-moi une question sur tes devoirs et je ferai de mon mieux pour t&apos;aider !
       </Typography>
 
       {/* Affichage de l'historique du chat */}
@@ -150,7 +150,7 @@ const AideDevoirs = () => {
       <Box sx={{ marginTop: 4 }}>
         <Link href={`/?user=${encodeURIComponent(username)}`} passHref legacyBehavior>
           <Button component="a" variant="outlined" color="secondary">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Button>
         </Link>
       </Box>

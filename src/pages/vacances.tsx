@@ -13,10 +13,12 @@ const Vacances = () => {
         Planification de vacances
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Bonjour {username}! Créez des voyages sur mesure et planifiez des vacances remplies d'aventures et de découvertes.
+        Bonjour {username}! Créez des voyages sur mesure et planifiez des vacances remplies d&apos;aventures et de découvertes.
       </Typography>
       <Link href="/" passHref>
-        <Button variant="contained" color="primary">Retour à l'accueil</Button>
+        <Button variant="contained" color="primary">
+          Retour à l&apos;accueil
+        </Button>
       </Link>
     </Box>
   );

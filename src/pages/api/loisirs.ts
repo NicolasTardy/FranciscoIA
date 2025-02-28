@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import OpenAI from "openai"; // Vous pouvez adapter pour Mistral ou autre API
 
-const openai = new OpenAI({
-  apiKey: process.env.MISTRAL_API_KEY, // Ou une autre clé, selon votre intégration
-});
+// Supprimé l'import et la création d'OpenAI car non utilisés.
+// import OpenAI from "openai";
+// const openai = new OpenAI({ ... });
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,7 +18,7 @@ export default async function handler(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
+          "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`,
         },
         body: JSON.stringify({
           model: "pixtral-12b-2409",
@@ -30,7 +29,9 @@ export default async function handler(
       });
       if (!response.ok) {
         console.error("Erreur de l'API Mistral :", response.statusText);
-        return res.status(response.status).json({ error: "Erreur lors de la génération des suggestions." });
+        return res
+          .status(response.status)
+          .json({ error: "Erreur lors de la génération des suggestions." });
       }
       const data = await response.json();
       const suggestions = data.choices[0]?.message?.content || "Aucune idée trouvée.";

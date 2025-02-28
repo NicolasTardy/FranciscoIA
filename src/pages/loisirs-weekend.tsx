@@ -46,9 +46,9 @@ const LoisirsWeekend = () => {
 - Sortie sportive ? (oui/non) : ${sportif}
 
 Réponds sous la forme suivante :
-1. <b>Nom de la sortie</b>
-2. <b>Description de l'activité</b>
-3. <b>Pourquoi cette sortie est adaptée</b> (ajoute des emojis adaptés, par exemple 😊, 👍, 🎉, etc.)
+1. <b>Nom de la sortie
+2. <b>Description de l'activité
+3. <b>Pourquoi cette sortie est adaptée (ajoute des emojis adaptés)
 
 N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la balise <b> (sans fermeture) pour mettre en valeur les passages importants.`;
 
@@ -179,7 +179,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
       <Box sx={{ marginTop: 4, textAlign: "center" }}>
         <Link href={`/?user=${encodeURIComponent(username)}`} passHref legacyBehavior>
           <Button component="a" variant="outlined" color="secondary">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Button>
         </Link>
       </Box>

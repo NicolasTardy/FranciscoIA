@@ -13,10 +13,12 @@ const AssistantSportif = () => {
         Assistant sportif
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Bonjour {username}! Intégrez le sport dans votre quotidien grâce à des séances express conçues pour s'adapter à votre emploi du temps chargé.
+        Bonjour {username}! Intégrez le sport dans votre quotidien grâce à des séances express conçues pour s&apos;adapter à votre emploi du temps chargé.
       </Typography>
       <Link href="/" passHref>
-        <Button variant="contained" color="primary">Retour à l'accueil</Button>
+        <Button variant="contained" color="primary">
+          Retour à l&apos;accueil
+        </Button>
       </Link>
     </Box>
   );

@@ -16,7 +16,9 @@ const RendezVousMedical = () => {
         Bonjour {username}! Organisez et suivez vos consultations pour une gestion simplifiée de votre santé.
       </Typography>
       <Link href="/" passHref>
-        <Button variant="contained" color="primary">Retour à l'accueil</Button>
+        <Button variant="contained" color="primary">
+          Retour à l&apos;accueil
+        </Button>
       </Link>
     </Box>
   );

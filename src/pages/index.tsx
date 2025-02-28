@@ -53,7 +53,7 @@ const themes: Theme[] = [
   {
     id: "aide-devoirs",
     title: "Aide aux devoirs",
-    description: "Je transforme vos devoirs en une aventure d'apprentissage !"
+    description: "Je transforme vos devoirs en une aventure d&apos;apprentissage !"
   },
   {
     id: "recettes-cuisine",
@@ -120,6 +120,7 @@ const IndexPage = () => {
       <Box sx={{ textAlign: "center", marginBottom: 2 }}>
         <TextField
           placeholder="Votre pseudo"
+          aria-label="Votre pseudo"
           variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}

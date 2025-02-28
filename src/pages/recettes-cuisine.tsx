@@ -7,7 +7,7 @@ const RecettesCuisine = () => {
   const router = useRouter();
   const username = typeof router.query.user === "string" ? router.query.user : "invité";
 
-  // États pour stocker les valeurs saisies
+  // États pour stocker les valeurs saisies (15 pour frigo, 15 pour placard, 3 pour appareils)
   const [frigoItems, setFrigoItems] = useState<string[]>(Array(15).fill(""));
   const [placardItems, setPlacardItems] = useState<string[]>(Array(15).fill(""));
   const [appareilItems, setAppareilItems] = useState<string[]>(Array(3).fill(""));
@@ -15,24 +15,24 @@ const RecettesCuisine = () => {
   const [recipe, setRecipe] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Référence pour le son "go.wav"
+  // Référence pour la lecture du son "go.wav"
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Fonction pour mettre à jour les champs du frigo
+  // Mise à jour des champs du frigo
   const handleFrigoChange = (index: number, value: string) => {
     const newItems = [...frigoItems];
     newItems[index] = value;
     setFrigoItems(newItems);
   };
 
-  // Fonction pour mettre à jour les champs du placard
+  // Mise à jour des champs du placard
   const handlePlacardChange = (index: number, value: string) => {
     const newItems = [...placardItems];
     newItems[index] = value;
     setPlacardItems(newItems);
   };
 
-  // Fonction pour mettre à jour les appareils de cuisson
+  // Mise à jour des champs pour les appareils de cuisson
   const handleAppareilChange = (index: number, value: string) => {
     const newItems = [...appareilItems];
     newItems[index] = value;
@@ -41,16 +41,18 @@ const RecettesCuisine = () => {
 
   // Fonction pour envoyer les données à l'API et obtenir une recette
   const proposeRecipe = async () => {
-    // Lancer le son "go.wav" immédiatement
+    // Lancer le son "go.wav" dès le lancement de la requête
     if (audioRef.current) {
-      audioRef.current.play().catch((error) => console.error("Erreur de lecture du son:", error));
+      audioRef.current.play().catch((error) =>
+        console.error("Erreur de lecture du son:", error)
+      );
     }
     setLoading(true);
 
-    // Ne conserver que les champs renseignés
-    const frigoFiltered = frigoItems.filter(item => item.trim() !== "");
-    const placardFiltered = placardItems.filter(item => item.trim() !== "");
-    const appareilFiltered = appareilItems.filter(item => item.trim() !== "");
+    // Filtrer les champs non renseignés
+    const frigoFiltered = frigoItems.filter((item) => item.trim() !== "");
+    const placardFiltered = placardItems.filter((item) => item.trim() !== "");
+    const appareilFiltered = appareilItems.filter((item) => item.trim() !== "");
 
     // Construire le prompt en intégrant les données saisies
     const prompt = `Génère une recette simple et rapide à préparer en fonction des ingrédients disponibles.
@@ -68,12 +70,12 @@ Données:
 - Appareils de cuisson disponibles: ${appareilFiltered.join(", ") || "aucun"}
 
 Réponds sous la forme suivante:
-1. <b>Nom de la recette</b>
-2. <b>Ingrédients avec quantités approximatives</b>
-3. <b>Instructions pas à pas</b>
-4. <b>Suggestion de présentation ou d’accompagnement</b>
+1. <b>Nom de la recette
+2. <b>Ingrédients avec quantités approximatives
+3. <b>Instructions pas à pas
+4. <b>Suggestion de présentation ou d’accompagnement
 
-N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la balise <b> pour mettre en valeur les passages importants (aucune balise de fermeture). Ajoute de nombreux emojis (ex. 🍴, 🔥, 😊, 😋, 👍) pour rendre la réponse attrayante.`;
+N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la balise <b> pour mettre en valeur les passages importants (aucune balise de fermeture). Ajoute de nombreux emojis (ex. 🍴, 🔥, 😊, 😋, 👍).`;
 
     try {
       const response = await fetch("/api/recettes", {
@@ -81,6 +83,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
       });
+
       if (response.ok) {
         const data = await response.json();
         setRecipe(data.recipe);
@@ -96,20 +99,20 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
 
   return (
     <Box sx={{ padding: 4 }}>
-      {/* Élement audio pour le son "go.wav" */}
+      {/* Element audio pour le son "go.wav" */}
       <audio ref={audioRef} src="/go.wav" preload="auto" />
 
       <Typography variant="h4" align="center" gutterBottom>
         Recettes de cuisine
       </Typography>
       <Typography variant="body1" align="center" gutterBottom>
-        Bonjour {username}, je suis Francisco. Pour que je te propose une recette, indique-moi ce que tu as en stock.
+        Bonjour {username}, je suis Francisco. Pour que je te propose une recette, indique-moi ce que tu as en stock. (Tu n&apos;es pas obligé de remplir toutes les lignes !)
       </Typography>
 
-      {/* Section Frigo */}
+      {/* Section "Frigo" */}
       <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
         <Typography variant="h6" gutterBottom>
-          Dis-moi ce que tu as dans ton frigo (tu n’es pas obligé de remplir toutes les lignes :) :
+          Dis-moi ce que tu as dans ton frigo :
         </Typography>
         {frigoItems.map((item, index) => (
           <TextField
@@ -125,10 +128,10 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
         ))}
       </Box>
 
-      {/* Section Placard */}
+      {/* Section "Placard" */}
       <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
         <Typography variant="h6" gutterBottom>
-          Dis-moi ce que tu as dans ton placard (tu n’es pas obligé de remplir toutes les lignes :) :
+          Dis-moi ce que tu as dans ton placard :
         </Typography>
         {placardItems.map((item, index) => (
           <TextField
@@ -144,7 +147,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
         ))}
       </Box>
 
-      {/* Section Appareils */}
+      {/* Section "Appareils de cuisson" */}
       <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
         <Typography variant="h6" gutterBottom>
           Dis-moi avec quoi tu peux faire cuire :
@@ -163,7 +166,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
         ))}
       </Box>
 
-      {/* Section Nombre de personnes */}
+      {/* Section "Nombre de personnes" */}
       <Box sx={{ marginY: 2, maxWidth: 600, mx: "auto" }}>
         <TextField
           label="Combien êtes-vous pour déguster ?"
@@ -216,7 +219,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
       <Box sx={{ marginTop: 4, textAlign: "center" }}>
         <Link href={`/?user=${encodeURIComponent(username)}`} passHref legacyBehavior>
           <Button component="a" variant="outlined" color="secondary">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Button>
         </Link>
       </Box>
