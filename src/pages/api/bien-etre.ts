@@ -10,6 +10,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Le prompt est requis." });
   }
 
+  // Instructions de mise en forme
+  const promptWithFormatting = `${prompt}
+
+Veuillez NE PAS utiliser de symboles Markdown tels que ###, **, etc.
+N'utilisez aucun caractère '*' ou '#'.
+Utilisez uniquement la balise <b> (sans fermeture) pour mettre en relief les mots importants.
+Ajoutez de nombreux émojis adaptés (🎉, 🌟, 👍, etc.) pour rendre la réponse plus conviviale.
+`;
+
   try {
     const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
@@ -18,8 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
       },
       body: JSON.stringify({
-        model: "pixtral-12b-2409", // ou autre
-        messages: [{ role: "user", content: prompt }],
+        model: "pixtral-12b-2409",
+        messages: [{ role: "user", content: promptWithFormatting }],
         max_tokens: 500,
         temperature: 0.7
       })
@@ -31,8 +40,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const data = await response.json();
-    const contenu = data.choices?.[0]?.message?.content || "Aucune suggestion reçue.";
-    
+    let contenu = data.choices?.[0]?.message?.content || "Aucune suggestion reçue.";
+
+    // Nettoyer d'éventuels * ou #
+    contenu = contenu.replace(/[*#]+/g, "");
+
     res.status(200).json({ response: contenu });
   } catch (error) {
     console.error("Erreur interne Mistral AI :", error);
