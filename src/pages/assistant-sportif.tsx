@@ -100,7 +100,7 @@ Ajoute des emojis adaptés (🏋️, 🤸, 🏃, 🍏...) pour illustrer les exe
         color: "#000"
       }}
     >
-      <audio ref={audioRef} src="/go.wav" preload="auto" />
+      <audio ref={audioRef} src="/parfait.mp3" preload="auto" />
       <Typography variant="h4" gutterBottom>
         Assistant sportif
       </Typography>

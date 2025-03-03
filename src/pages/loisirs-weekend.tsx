@@ -110,7 +110,7 @@ N'utilise pas de symboles Markdown (pas de "###" ou "**") et n'utilise QUE la ba
       }}
     >
       {/* Son go.wav */}
-      <audio ref={audioRef} src="/go.wav" preload="auto" />
+      <audio ref={audioRef} src="/parfait.mp3" preload="auto" />
 
       <Typography variant="h4" align="center" gutterBottom>
         Loisirs Week-end

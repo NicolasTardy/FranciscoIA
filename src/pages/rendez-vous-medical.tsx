@@ -16,46 +16,42 @@ const RendezVousMedical = () => {
   const rawUser = router.query.user;
   const username = typeof rawUser === "string" ? rawUser : "invité";
 
-  // États pour recueillir les infos
-  const [professionnel, setProfessionnel] = useState(""); // ex: généraliste, dentiste, ophtalmo, etc.
-  const [localisation, setLocalisation] = useState("");   // ex: "Paris 12e"
-  const [disponibilites, setDisponibilites] = useState(""); // ex: "Plutôt en soirée, en semaine"
-  const [motif, setMotif] = useState(""); // ex: "contrôle annuel", "douleurs dentaires", etc.
-  const [assurance, setAssurance] = useState(""); // ex: "Mutuelle X, carte vitale", etc.
+  // États pour recueillir les informations du nouveau questionnaire
+  const [symptoms, setSymptoms] = useState("");
+  const [ville, setVille] = useState("");
+  const [delais, setDelais] = useState("");
 
   // Réponse de l'API
   const [suggestionRDV, setSuggestionRDV] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Son
+  // Référence pour le son
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Fonction d'envoi
+  // Fonction d'envoi de la demande
   const proposeRdv = async () => {
     if (audioRef.current) {
-      audioRef.current.play().catch((err) => console.error("Erreur audio:", err));
+      audioRef.current.play().catch((err) =>
+        console.error("Erreur audio:", err)
+      );
     }
     setLoading(true);
 
     const prompt = `
-Tu es Francisco, un assistant qui aide à planifier un rendez-vous médical, sans donner de conseils de santé ou de diagnostic.
-Voici les informations :
-- Type de professionnel recherché : ${professionnel || "non précisé"}
-- Lieu souhaité : ${localisation || "non précisé"}
-- Disponibilités : ${disponibilites || "non précisées"}
-- Motif principal du rendez-vous : ${motif || "non précisé"}
-- Informations d'assurance ou mutuelle : ${assurance || "non précisé"}
+Tu es Francisco, un assistant pour organiser un rendez-vous médical.
+Voici les informations du patient :
+- Symptômes ou douleurs : ${symptoms || "non précisé"}
+- Ville souhaitée pour consulter : ${ville || "non précisée"}
+- Délai souhaité : ${delais || "non précisé"}
 
-Propose :
-1) Le type de docteur adapté à la situation (si différent de celui indiqué)
-2) Les créneaux ou options possibles (journées/horaires) 
-3) Les éventuels papiers ou documents à apporter (ordonnances, carte vitale, etc.)
-4) Les questions à poser au professionnel pour clarifier le motif 
-5) Rappelle que ce n'est pas un diagnostic ni un avis médical, juste une aide pour organiser le RDV
+En fonction de ces informations, indique :
+1) La spécialité médicale à consulter (même si différente des symptômes indiqués).
+2) Quelques liens pour trouver un spécialiste dans la ville indiquée, y compris un lien vers Doctolib.
+3) Si les symptômes suggèrent une urgence, fournis les numéros d’urgence correspondant à la localisation du patient.
 
-N'utilise pas de symboles Markdown. Tu peux utiliser la balise <b> (sans fermeture) pour souligner un titre ou un mot.
-Ajoute des emojis adaptés (🏥, 📅, 🩺...) si tu veux rendre le texte plus convivial.
-    `;
+N'utilise pas de symboles Markdown et n'utilise que la balise <b> (sans fermeture) pour souligner les titres.
+Ajoute des emojis adaptés (🏥, 📅, 🚑, etc.) pour rendre le texte plus convivial.
+`;
 
     try {
       const response = await fetch("/api/rendez-vous-medical", {
@@ -77,7 +73,7 @@ Ajoute des emojis adaptés (🏥, 📅, 🩺...) si tu veux rendre le texte plus
     }
   };
 
-  // Styles pour TextField
+  // Styles pour les TextField
   const textFieldStyles = {
     "& .MuiOutlinedInput-root": {
       backgroundColor: "#fff",
@@ -99,14 +95,14 @@ Ajoute des emojis adaptés (🏥, 📅, 🩺...) si tu veux rendre le texte plus
         color: "#000"
       }}
     >
-      <audio ref={audioRef} src="/go.wav" preload="auto" />
+      <audio ref={audioRef} src="/parfait.mp3" preload="auto" />
 
       <Typography variant="h4" gutterBottom>
         Rendez-vous médical
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Bonjour {username}! Organisez et suivez vos consultations pour une gestion simplifiée
-        de votre santé. Je ne donne pas de conseils médicaux, mais je peux t&apos;aider à préparer ton RDV.
+        Bonjour {username}! Organisez vos consultations pour un rendez-vous bien préparé.
+        Je ne donne pas de conseils médicaux, mais je peux vous aider à organiser votre RDV en recueillant quelques informations.
       </Typography>
 
       {/* Formulaire */}
@@ -114,51 +110,31 @@ Ajoute des emojis adaptés (🏥, 📅, 🩺...) si tu veux rendre le texte plus
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <TextField
-              label="Type de professionnel (généraliste, dentiste...)"
+              label="Où avez-vous mal ou quels sont vos symptômes ?"
               variant="outlined"
               fullWidth
-              value={professionnel}
-              onChange={(e) => setProfessionnel(e.target.value)}
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
               sx={textFieldStyles}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Localisation (ville, arrondissement...)"
+              label="Dans quelle ville souhaitez-vous consulter ?"
               variant="outlined"
               fullWidth
-              value={localisation}
-              onChange={(e) => setLocalisation(e.target.value)}
+              value={ville}
+              onChange={(e) => setVille(e.target.value)}
               sx={textFieldStyles}
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Disponibilités (ex: soirées, WE...)"
+              label="Sous quels délais ?"
               variant="outlined"
               fullWidth
-              value={disponibilites}
-              onChange={(e) => setDisponibilites(e.target.value)}
-              sx={textFieldStyles}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Motif (ex: contrôle annuel, douleurs, etc.)"
-              variant="outlined"
-              fullWidth
-              value={motif}
-              onChange={(e) => setMotif(e.target.value)}
-              sx={textFieldStyles}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              label="Assurance ou mutuelle (ex: carte vitale, mutuelle X...)"
-              variant="outlined"
-              fullWidth
-              value={assurance}
-              onChange={(e) => setAssurance(e.target.value)}
+              value={delais}
+              onChange={(e) => setDelais(e.target.value)}
               sx={textFieldStyles}
             />
           </Grid>
@@ -196,7 +172,7 @@ Ajoute des emojis adaptés (🏥, 📅, 🩺...) si tu veux rendre le texte plus
         </Box>
       )}
 
-      {/* Bouton de retour */}
+      {/* Bouton de retour à l'accueil */}
       <Box sx={{ mt: 4, textAlign: "center" }}>
         <Link href={`/?user=${encodeURIComponent(username)}`} passHref legacyBehavior>
           <Button component="a" variant="outlined" color="secondary">

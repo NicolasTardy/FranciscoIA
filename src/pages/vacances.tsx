@@ -100,7 +100,7 @@ Ajoute des emojis adaptés (⛵, ✈️, 🏝️, etc.) quand tu décris les act
         color: "#000"
       }}
     >
-      <audio ref={audioRef} src="/go.wav" preload="auto" />
+      <audio ref={audioRef} src="/parfait.pm3" preload="auto" />
 
       <Typography variant="h4" gutterBottom>
         Planification de vacances

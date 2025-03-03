@@ -10,28 +10,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Le prompt est requis." });
   }
 
-  // On ajoute un message spécifique pour supprimer Markdown et caractères
-  const promptWithFormatting = `${prompt}
-
-Veuillez NE PAS utiliser de symboles Markdown tels que ###, **, *, etc.
-N'utilisez aucune forme d'astérisque ou de dièse dans votre réponse.
-Utilisez uniquement la balise <b> (sans fermeture) pour mettre en relief les passages importants.
-Ajoutez autant d'émojis pertinents que possible (ex: 📚, 📝, 😊, 📖, etc.) pour illustrer le propos.
-`;
-
   try {
     const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}` // Assurez-vous d'avoir votre clé d'API
+        Authorization: `Bearer ${process.env.MISTRAL_API_KEY}`,
       },
       body: JSON.stringify({
         model: "pixtral-12b-2409",
-        messages: [{ role: "user", content: promptWithFormatting }],
+        messages: [{ role: "user", content: prompt }],
         max_tokens: 700,
-        temperature: 0.7
-      })
+        temperature: 0.7,
+      }),
     });
 
     if (!response.ok) {
@@ -40,10 +31,12 @@ Ajoutez autant d'émojis pertinents que possible (ex: 📚, 📝, 😊, 📖, et
     }
 
     const data = await response.json();
-    let contenu = data.choices?.[0]?.message?.content || "Aucune réponse générée.";
+    let contenu = data.choices?.[0]?.message?.content || "";
 
-    // Optionnel : on peut nettoyer le contenu pour supprimer d'éventuels restes de * ou #
-    contenu = contenu.replace(/[*#]+/g, "");
+    // Si la matière est Mathématiques, ajouter une note sur LaTeX
+    if (prompt.includes("Matière : Mathématiques")) {
+      contenu += "\n\nNote : Les formules ci-dessus sont écrites en LaTeX pour faciliter leur lecture.";
+    }
 
     return res.status(200).json({ response: contenu });
   } catch (error) {
