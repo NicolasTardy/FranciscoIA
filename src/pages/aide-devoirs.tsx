@@ -275,9 +275,9 @@ Donne éventuellement des astuces pour progresser ou des ressources supplémenta
         loop
         style={{
           position: "fixed",
-          bottom: "200px", // ajusté pour être plus haut
+          bottom: "50px", // ajusté pour être plus haut
           left: "16px",
-          width: "200px" // Ajustez la taille au besoin
+          width: "100px" // Ajustez la taille au besoin
         }}
         controls
       />
